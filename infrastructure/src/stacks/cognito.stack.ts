@@ -1,4 +1,4 @@
-import { Duration, RemovalPolicy, Stack, StackProps } from "aws-cdk-lib";
+import {CfnOutput, Duration, RemovalPolicy, Stack, StackProps} from "aws-cdk-lib";
 import { UserPool, UserPoolOperation } from "aws-cdk-lib/aws-cognito";
 import { Key, KeySpec } from "aws-cdk-lib/aws-kms";
 import { Code, Runtime, Function } from "aws-cdk-lib/aws-lambda";
@@ -43,7 +43,7 @@ export class CognitoStack extends Stack {
       customSenderKmsKey: cmk,
     });
 
-    userPool.addClient("exanubes-user-pool-client", {
+    const client = userPool.addClient("exanubes-user-pool-client", {
       userPoolClientName: "exanubes-cognito-app",
       authFlows: {
         userPassword: true,
@@ -52,6 +52,10 @@ export class CognitoStack extends Stack {
       idTokenValidity: Duration.days(1),
       refreshTokenValidity: Duration.days(30),
       preventUserExistenceErrors: true,
+    });
+
+    new CfnOutput(this, 'exanubes-user-pool-client-id', {
+      value: client.userPoolClientId,
     });
 
     return userPool;

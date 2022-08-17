@@ -11,56 +11,53 @@ const sendgridApiKey = String(process.env.SENDGRID_API_KEY);
 emailClient.setApiKey(sendgridApiKey);
 
 exports.handler = async (event: CognitoTriggerEvent) => {
-  //Decrypt the secret code using encryption SDK.
-  let plainTextCode;
-  if (event.request.code) {
-    const { plaintext } = await decrypt(
-      keyring,
-      b64.toByteArray(event.request.code)
-    );
-    plainTextCode = plaintext.toString?.();
-  }
-  //PlainTextCode now has the decrypted secret.
-  const user = event.request.userAttributes;
-  const email = {
-    to: `${event.userName} <${user.email}>`,
-    from: "Exanubes.com <newsletter@exanubes.com>",
-    subject: `[${event.triggerSource}] Welcome to Exanubes.com`,
-    text: `Welcome to exanubes.com,\njoin us by going to http://localhost:3001/verify?code=${plainTextCode}&username=${event.userName}`,
-  };
+  try {
+    //Decrypt the secret code using encryption SDK.
+    let plainTextCode;
+    if (event.request.code) {
+      const { plaintext } = await decrypt(
+        keyring,
+        b64.toByteArray(event.request.code)
+      );
+      plainTextCode = plaintext.toString?.();
+    }
+    //PlainTextCode now has the decrypted secret.
+    const user = event.request.userAttributes;
+    const email = {
+      to: `${event.userName} <${user.email}>`,
+      from: "Exanubes.com <newsletter@exanubes.com>",
+      subject: `[${event.triggerSource}] Welcome to Exanubes.com`,
+      text: `Welcome to exanubes.com,\njoin us by going to http://localhost:3001/verify?code=${plainTextCode}&username=${event.userName}`,
+    };
 
-      try {
-        switch (event.triggerSource) {
-          case TriggerSource.SignUp:
-            await emailClient.send(email);
-            break;
-          case TriggerSource.ResendCode:
-            break;
-          case TriggerSource.ForgotPassword:
-            break;
-          case TriggerSource.UpdateUserAttribute:
-            break;
-          case TriggerSource.VerifyUserAttribute:
-            break;
-          case TriggerSource.AdminCreateUser:
-            break;
-          case TriggerSource.AccountTakeOverNotification:
-            break;
-          default:
-            const x: never = event.triggerSource;
-            console.log(
-              "Unhandled case for trigger source: ",
-              event.triggerSource
-            );
-            return x;
-        }
-      } catch (error) {
-        console.log(error);
-      }
+    switch (event.triggerSource) {
+      case TriggerSource.SignUp:
+        await emailClient.send(email);
+        break;
+      case TriggerSource.ResendCode:
+        break;
+      case TriggerSource.ForgotPassword:
+        break;
+      case TriggerSource.UpdateUserAttribute:
+        break;
+      case TriggerSource.VerifyUserAttribute:
+        break;
+      case TriggerSource.AdminCreateUser:
+        break;
+      case TriggerSource.AccountTakeOverNotification:
+        break;
+      default:
+        const x: never = event.triggerSource;
+        console.log("Unhandled case for trigger source: ", event.triggerSource);
+        return x;
+    }
+  } catch (error) {
+    console.log(error);
+  }
   return;
 };
 
-export enum TriggerSource {
+enum TriggerSource {
   SignUp = "CustomEmailSender_SignUp",
   ResendCode = "CustomEmailSender_ResendCode",
   ForgotPassword = "CustomEmailSender_ForgotPassword",
@@ -70,7 +67,7 @@ export enum TriggerSource {
   AccountTakeOverNotification = "CustomEmailSender_AccountTakeOverNotification",
 }
 
-export interface CognitoTriggerEvent {
+interface CognitoTriggerEvent {
   triggerSource: TriggerSource;
   userName: string;
   userPoolId: string;
