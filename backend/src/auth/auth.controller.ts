@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import { SignUpDto } from './dto/sign-up.dto';
 import { PublicRoute } from '../utils/public-route.decorator';
 import { LoginDto } from './dto/login.dto';
+import { VerifySignupDto } from './dto/verify-signup.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -15,8 +16,8 @@ export class AuthController {
   }
   @PublicRoute()
   @Post('signup/verify')
-  verify(@Body() body: any) {
-    return this.authService.verifySignup(body.code, body.username);
+  verify(@Body() body: VerifySignupDto) {
+    return this.authService.verifySignup(body);
   }
   @PublicRoute()
   @Post('login')
