@@ -1,7 +1,7 @@
 # Cognito User Pool with Custom Mailer
 
 
-Repository from [exanubes.com](https://exanubes.com) for [Setup Cognito User Pool with custom emailing service]().
+Repository from [exanubes.com](https://exanubes.com) for [Setup Cognito User Pool with custom emailing service](https://exanubes.com/blog/setup-cognito-user-pool-with-custom-emailing-service).
 
 
 This repository is using AWS CDK v2 and is not compatible with AWS CDK v1 bootstrap stack.
