@@ -1,7 +1,13 @@
-import {CfnOutput, Duration, RemovalPolicy, Stack, StackProps} from "aws-cdk-lib";
+import {
+  CfnOutput,
+  Duration,
+  RemovalPolicy,
+  Stack,
+  StackProps,
+} from "aws-cdk-lib";
 import { UserPool, UserPoolOperation } from "aws-cdk-lib/aws-cognito";
 import { Key, KeySpec } from "aws-cdk-lib/aws-kms";
-import { Code, Runtime, Function } from "aws-cdk-lib/aws-lambda";
+import { Code, Function, LayerVersion, Runtime } from "aws-cdk-lib/aws-lambda";
 import { join } from "path";
 import { Construct } from "constructs";
 import {
@@ -54,8 +60,11 @@ export class CognitoStack extends Stack {
       preventUserExistenceErrors: true,
     });
 
-    new CfnOutput(this, 'exanubes-user-pool-client-id', {
+    new CfnOutput(this, "exanubes-user-pool-client-id", {
       value: client.userPoolClientId,
+    });
+    new CfnOutput(this, "exanubes-user-pool-id", {
+      value: userPool.userPoolId,
     });
 
     return userPool;
@@ -70,6 +79,13 @@ export class CognitoStack extends Stack {
   }
 
   private createCustomEmailer(cmk: Key, keyAliasArn: string): Function {
+    const layer = new LayerVersion(this, "exanubes-dynamodb-lambda-layer", {
+      code: Code.fromAsset(join(__dirname, "..", "layers/mailer-libs")),
+      compatibleRuntimes: [Runtime.NODEJS_14_X, Runtime.NODEJS_12_X],
+      description: "node_modules for cognito custom mailer",
+      removalPolicy: RemovalPolicy.DESTROY,
+    });
+
     return new Function(this, "custom-emailer-lambda", {
       code: Code.fromAsset(
         join(__dirname, "..", "lambdas/custom-email-sender")
@@ -81,6 +97,7 @@ export class CognitoStack extends Stack {
         KEY_ALIAS: keyAliasArn,
         SENDGRID_API_KEY: String(process.env.SENDGRID_API_KEY),
       },
+      layers: [layer],
     });
   }
 
