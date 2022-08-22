@@ -1,16 +1,9 @@
 **/node_modules/
 .idea/
 **/dist/
-**/public/
 **/.env
 **/.DS_Store
-
-**/.DS_Store
-**/.env
-**/node_modules
 **/.idea
-**/public/
-**/dist/
 **/cdk.out/
 **/*.d.ts
 **/infrastructure/src/**/*.js
